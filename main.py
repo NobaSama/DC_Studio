@@ -1,17 +1,11 @@
 import sys
 
 from PySide6.QtWidgets import QApplication
-from PySide6.QtWidgets import QLabel
-
+from src.ui.main_window import MainWindow
 
 app = QApplication(sys.argv)
 
-ventana = QLabel("Bienvenido a DC Studio")
-
-ventana.resize(500, 300)
-
-ventana.setWindowTitle("DC Studio")
-
-ventana.show()
+window = MainWindow()
+window.show()
 
 sys.exit(app.exec())
