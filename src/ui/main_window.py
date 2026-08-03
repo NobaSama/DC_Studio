@@ -2,9 +2,11 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QLabel,
     QStatusBar,
+    QToolBar,
     QMenuBar,
     QMenu
 )
+from PySide6.QtGui import QAction
 
 class MainWindow(QMainWindow):
 
@@ -27,3 +29,15 @@ class MainWindow(QMainWindow):
         menu_filtros = barra_menu.addMenu("Filtros")
         menu_ver = barra_menu.addMenu("Ver")
         menu_ayuda = barra_menu.addMenu("Ayuda")
+
+        # Barra de herramientas
+        barra_herramientas = QToolBar("Principal")
+        self.addToolBar(barra_herramientas)
+
+        accion_nuevo = QAction("Nuevo", self)
+        accion_abrir = QAction("Abrir", self)
+        accion_guardar = QAction("Guardar", self)
+
+        barra_herramientas.addAction(accion_nuevo)
+        barra_herramientas.addAction(accion_abrir)
+        barra_herramientas.addAction(accion_guardar)
