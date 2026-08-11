@@ -40,6 +40,12 @@ class MainWindow(QMainWindow):
             self.etiqueta.setPixmap(imagen)
             self.etiqueta.setScaledContents(True)
             self.statusBar().showMessage(f"Imagen cargada: {archivo}")
+
+    def nuevo_archivo(self):
+
+            self.etiqueta.clear()
+            self.etiqueta.setText("Nuevo proyecto")
+            self.barra_estado.showMessage("Nuevo proyecto creado")
   
     def crear_barra_de_estado(self):
 
@@ -70,6 +76,7 @@ class MainWindow(QMainWindow):
         self.accion_guardar = QAction("Guardar", self)
 
         self.accion_abrir.triggered.connect(self.abrir_archivo)
+        self.accion_nuevo.triggered.connect(self.nuevo_archivo)
 
         self.menu_archivo.addAction(self.accion_nuevo)
         self.menu_archivo.addAction(self.accion_abrir)
@@ -84,3 +91,9 @@ class MainWindow(QMainWindow):
         barra.addAction(self.accion_nuevo)
         barra.addAction(self.accion_abrir)
         barra.addAction(self.accion_guardar)
+
+    def nuevo_archivo(self):
+
+        self.etiqueta.clear()
+        self.etiqueta.setText("Nuevo proyecto")
+        self.barra_estado.showMessage("Nuevo proyecto creado")
