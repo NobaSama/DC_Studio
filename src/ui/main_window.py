@@ -36,16 +36,12 @@ class MainWindow(QMainWindow):
             "Imágenes (*.png *.jpg *.jpeg *.bmp);;Todos los archivos (*)"
         )
         if archivo:
-            imagen = QPixmap(archivo)
-            self.etiqueta.setPixmap(imagen)
+            self.imagen_actual = QPixmap(archivo)
+            self.etiqueta.setPixmap(self.imagen_actual)
             self.etiqueta.setScaledContents(True)
-            self.statusBar().showMessage(f"Imagen cargada: {archivo}")
-
-    def nuevo_archivo(self):
-
-            self.etiqueta.clear()
-            self.etiqueta.setText("Nuevo proyecto")
-            self.barra_estado.showMessage("Nuevo proyecto creado")
+            self.barra_estado.showMessage(
+                f"Imagen cargada: {archivo}"
+                )
   
     def crear_barra_de_estado(self):
 
@@ -67,6 +63,7 @@ class MainWindow(QMainWindow):
     def crear_area_imagen(self):
         self.etiqueta = QLabel("Bienvenido a DC Studio")
         self.etiqueta.setAlignment(Qt.AlignCenter)
+        self.imagen_actual = None
         self.setCentralWidget(self.etiqueta)
 
     def crear_acciones(self):
@@ -77,6 +74,7 @@ class MainWindow(QMainWindow):
 
         self.accion_abrir.triggered.connect(self.abrir_archivo)
         self.accion_nuevo.triggered.connect(self.nuevo_archivo)
+        self.accion_guardar.triggered.connect(self.guardar_archivo)
 
         self.menu_archivo.addAction(self.accion_nuevo)
         self.menu_archivo.addAction(self.accion_abrir)
@@ -97,3 +95,33 @@ class MainWindow(QMainWindow):
         self.etiqueta.clear()
         self.etiqueta.setText("Nuevo proyecto")
         self.barra_estado.showMessage("Nuevo proyecto creado")
+
+    def guardar_archivo(self):
+
+        archivo, _ = QFileDialog.getSaveFileName(
+           self,
+           "Guardar Imagen",
+           "",
+           "PNG (*.png);;JPEG (*.jpg *.jpeg);;Todos los archivos (*)"
+    )
+        if archivo:
+
+           if self.imagen_actual:
+               resultado = self.imagen_actual.save(archivo)
+               if resultado:
+                   self.barra_estado.showMessage(
+                       f"Imagen guardada: {archivo}"
+                   )
+               else:
+                   self.barra_estado.showMessage(
+                       "Imagen guardada: {archivo}"
+                   )
+           else:
+               self.barra_estado.showMessage(
+                   "Error al guardar la imagen"
+               )
+
+        else:
+            self.barra_estado.showMessage(
+                "No hay ninguna imagen para guardar"
+            )
