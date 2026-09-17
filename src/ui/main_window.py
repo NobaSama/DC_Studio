@@ -4,12 +4,80 @@ from PySide6.QtWidgets import (
     QToolBar,
     QFileDialog,
     QGraphicsView,
-    QGraphicsScene
+    QGraphicsScene,
+    QLabel
 )
 
 from PySide6.QtGui import QAction, QPixmap
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QPointF, Signal
 
+
+class CanvasView(QGraphicsView):
+
+    zoom_cambiado = Signal(float)
+
+    def __init__(self, scene):
+        super().__init__(scene)
+
+        self.factor_zoom = 1.15
+        self.zoom_minimo = 0.10
+        self.zoom_maximo = 10.0
+
+        self.setTransformationAnchor(
+            QGraphicsView.NoAnchor
+        )
+
+        self.setResizeAnchor(
+            QGraphicsView.NoAnchor
+        )
+
+    def wheelEvent(self, event):
+
+        posicion_mouse = event.position()
+
+        posicion_escena_antes = self.mapToScene(
+            posicion_mouse.toPoint()
+        )
+
+        if event.angleDelta().y() > 0:
+
+            factor = self.factor_zoom
+
+        else:
+
+            factor = 1 / self.factor_zoom
+
+        transformacion_actual = self.transform()
+        escala_actual = transformacion_actual.m11()
+
+        nueva_escala = escala_actual * factor
+
+        if nueva_escala < self.zoom_minimo:
+            factor = self.zoom_minimo / escala_actual
+
+        elif nueva_escala > self.zoom_maximo:
+            factor = self.zoom_maximo / escala_actual
+
+        self.scale(factor, factor)
+
+        posicion_escena_despues = self.mapToScene(
+            posicion_mouse.toPoint()
+        )
+
+        desplazamiento = (
+            posicion_escena_despues
+            - posicion_escena_antes
+        )
+
+        self.translate(
+            desplazamiento.x(),
+            desplazamiento.y()
+        )
+
+        escala_actual = self.transform().m11()
+        porcentaje_zoom = escala_actual * 100
+
+        self.zoom_cambiado.emit(porcentaje_zoom)
 
 class MainWindow(QMainWindow):
 
@@ -18,6 +86,7 @@ class MainWindow(QMainWindow):
 
         self.configurar_ventana()
         self.crear_barra_de_estado()
+        self.crear_indicador_zoom()
         self.crear_area_imagen()
         self.crear_menu()
         self.crear_acciones()
@@ -33,11 +102,23 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.barra_estado)
         self.barra_estado.showMessage("Listo")
 
+    def crear_indicador_zoom(self):
+
+        self.indicador_zoom = QLabel("Zoom: 100%")
+
+        self.barra_estado.addPermanentWidget(
+            self.indicador_zoom
+        )
+
     def crear_area_imagen(self):
 
         self.escena = QGraphicsScene()
 
-        self.canvas = QGraphicsView(self.escena)
+        self.canvas = CanvasView(self.escena)
+
+        self.canvas.zoom_cambiado.connect(
+            self.actualizar_zoom
+        )
 
         self.canvas.setAlignment(Qt.AlignCenter)
 
@@ -180,3 +261,9 @@ class MainWindow(QMainWindow):
                 self.barra_estado.showMessage(
                     "Error al guardar la imagen"
                 )
+                
+    def actualizar_zoom(self, porcentaje):
+
+        self.indicador_zoom.setText(
+            f"Zoom: {porcentaje:.0f}%"
+        )           
